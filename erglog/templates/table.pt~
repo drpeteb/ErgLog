@@ -1,0 +1,61 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+      xmlns:tal="http://xml.zope.org/namespaces/tal">
+<head>
+  <title>ErgLog - An erg time database site for Cambridge '99s Rowing Club</title>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
+  <meta name="keywords" content="erg time database rowing 99s" />
+  <meta name="description" content="erg time database" />
+  <link rel="shortcut icon"
+        href="${request.static_url('erglog:static/favicon.ico')}" />
+  <link rel="stylesheet"
+        href="${request.static_url('erglog:static/erglog.css')}"
+        type="text/css" media="screen" charset="utf-8" />
+  <style>
+    table
+    {
+      border-collapse:collapse;
+    }
+    table, th, td
+    {
+      border: 1px solid black;
+    }
+    th
+    {
+      height:50px;
+    }
+  </style>
+</head>
+<body>
+  <div id="wrap">
+    <div id="top-small">
+      <div class="top-small align-center">
+        <div>
+          <img height="40" alt="erglog"
+        src="${request.static_url('erglog:static/crest_col_vsm.gif')}" />
+        </div>
+      </div>
+    </div>
+    <div id="bottom">
+      <div class="bottom">
+
+        <table>
+          <tr><td>Date</td><td>Rower</td><td>Distance (m)</td><td>Split</td></tr>
+          <tr tal:repeat="entry entries">
+            <td tal:content="entry.date">00-00-00</td>
+            <td tal:content="entry.rower">-------</td>
+            <td tal:content="entry.distance">----</td>
+            <td tal:content="entry.split">--:--.-</td>
+          </tr>
+        </table> 
+
+      </div>
+    </div>
+  </div>
+  <div id="footer">
+    <div class="footer"
+         >&copy; Copyright 2013, P. Bunch.</div>
+  </div>
+</body>
+</html>
