@@ -14,6 +14,10 @@ from .models import (
     )
 
 import datetime
+import matplotlib.pyplot as plt
+import matplotlib.dates as mpl_dates
+import StringIO
+import xkcdify
 
 @view_config(route_name='home', renderer='templates/home.pt')
 def home_page(request):
@@ -69,9 +73,9 @@ def erg_table(request):
     # If there aren't any, 404 it
     if not erg_list:
         return HTTPNotFound('No such page')
-    entries = []
-    
+        
     # Sort and convert to text
+    entries = []
     erg_list.sort(key=lambda erg: erg.date)
     for erg in erg_list:
         date = datetime.datetime.strftime(erg.date,'%Y-%m-%d')
@@ -86,5 +90,34 @@ def erg_table(request):
 
 @view_config(route_name='graph', renderer='templates/graph.pt')
 def erg_graph(request):
-    return HTTPNotFound('No such page')
+    # Make a list of ergs to display
+    rower_id = int(request.matchdict['rower_id'])
+    if rower_id == 0:
+        erg_list = DBSession.query(ErgRecord).all()
+    else:
+        erg_list = DBSession.query(ErgRecord).filter_by(rower_id=rower_id).all()
+    erg_list.sort(key=lambda erg: erg.date)
+    
+    # Strip out dates and distances
+    dates = []
+    distances = []
+    for erg in erg_list:
+        dates.append(erg.date)
+        distances.append(erg.distance)
+
+    # Create a plot
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.plot_date(dates, distances, '-')
+    fig.autofmt_xdate()
+    
+    # Output a string
+    virtual_file = StringIO.StringIO()
+    fig.savefig(virtual_file, format='svg')
+    virtual_file.seek(0)
+    svg_data = virtual_file.buf
+    start_point = svg_data.find('<svg')
+    svg_data = svg_data[start_point:]
+
+    return {"svg_data":svg_data}
 

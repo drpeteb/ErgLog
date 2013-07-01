@@ -26,15 +26,9 @@
     <div id="bottom">
       <div class="bottom">
 
-        <table border="1">
-          <tr><td>Date</td><td>Rower</td><td>Distance (m)</td><td>Split</td></tr>
-          <tr tal:repeat="erg erg_list">
-            <td tal:content="erg.rower">-------</td>
-            <td tal:content="erg.date">00-00-00</td>
-            <td tal:content="erg.distance">----</td>
-            <td tal:content="erg.split">--:--.-</td>
-          </tr>
-        </table> 
+        <wrap tal:replace="svg_data">
+            SVG HERE
+        </wrap>
 
       </div>
     </div>
