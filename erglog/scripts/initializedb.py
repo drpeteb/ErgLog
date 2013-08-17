@@ -12,7 +12,10 @@ from pyramid.paster import (
 from ..models import (
     DBSession,
     Rower,
-    ErgRecord,
+    ErgTypeDistance,
+    ErgTypeTime,
+    ErgRecordDistance,
+    ErgRecordTime,
     Base,
     )
 
@@ -33,6 +36,6 @@ def main(argv=sys.argv):
     engine = engine_from_config(settings, 'sqlalchemy.')
     DBSession.configure(bind=engine)
     Base.metadata.create_all(engine)
-    #with transaction.manager:
-        #model = MyModel(name='one', value=1)
-        #DBSession.add(model)
+    with transaction.manager:
+        rower = Rower('default', 'password', 'Default Superuser', admin=True)
+        DBSession.add(rower)

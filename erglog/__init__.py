@@ -1,5 +1,10 @@
 from pyramid.config import Configurator
+from pyramid.authentication import AuthTktAuthenticationPolicy
+from pyramid.authorization import ACLAuthorizationPolicy
+
 from sqlalchemy import engine_from_config
+
+from erglog.security import group_finder
 
 from .models import (
     DBSession,
@@ -8,17 +13,30 @@ from .models import (
 
 
 def main(global_config, **settings):
-    """ This function returns a Pyramid WSGI application.
-    """
+    # SQLAlchemy bits
     engine = engine_from_config(settings, 'sqlalchemy.')
     DBSession.configure(bind=engine)
     Base.metadata.bind = engine
-    config = Configurator(settings=settings)
+
+    # Pyramid bits
+    authn_policy = AuthTktAuthenticationPolicy(
+        'springtimeforhitlerandgermany', callback=group_finder)
+    authz_policy = ACLAuthorizationPolicy()
+
+    # Application configuration
+    config = Configurator(settings=settings, root_factory='erglog.models.RootFactory')
+    config.set_authentication_policy(authn_policy)
+    config.set_authorization_policy(authz_policy)
     config.add_static_view('static', 'static', cache_max_age=3600)
     ### Routes ###
-    config.add_route('home', '/')
+    config.add_route('login', '/')
+    config.add_route('logout', '/logout/')
+    config.add_route('home', '/home/')
+    config.add_route('admin', '/admin/')
     config.add_route('table', '/table/{rower_id}')
     config.add_route('graph', '/graph/{rower_id}')
     ##############
     config.scan()
+    
+    # Start application
     return config.make_wsgi_app()

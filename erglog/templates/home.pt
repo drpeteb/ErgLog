@@ -1,72 +1,45 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
-      xmlns:tal="http://xml.zope.org/namespaces/tal">
-<head>
-  <title>ErgLog - An erg time database site for Cambridge '99s Rowing Club</title>
-  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
-  <meta name="keywords" content="erg time database rowing 99s" />
-  <meta name="description" content="erg time database" />
-  <link rel="shortcut icon"
-        href="${request.static_url('erglog:static/favicon.ico')}" />
-  <link rel="stylesheet"
-        href="${request.static_url('erglog:static/erglog.css')}"
-        type="text/css" media="screen" charset="utf-8" />
-</head>
-<body>
-  <div id="wrap">
-    <div id="top-small">
-      <div class="top-small align-center">
-        <div>
-          <img height="40" alt="erglog"
-        src="${request.static_url('erglog:static/crest_col_vsm.gif')}" />
-        </div>
-      </div>
-    </div>
-    <div id="middle">
-      <div class="middle align-right">
-        <div id="left" class="app-welcome align-left">
-          <b><span tal:replace="message">Message goes here</span></b><br/>
-        </div>
-        <div id="right" class="app-welcome align-right"></div>
-      </div>
-    </div>
-    <div id="bottom">
-      <div class="bottom">
-        <p>What would you like to do?</p><br/>
-        <form action="${request.application_url}" method="post">
-          Add new rower<br/>
-          <p>     Name: <input type="text" name="rower_name"/><input type="submit" name="form.rower_added" value="Add"/></p>
-        </form>
-        <br/>
-        <form action="${request.application_url}" method="post">
-          Add an erg<br/>
-          <p>     Rower:              <select name="rower_id">
-            <option tal:repeat="rower rower_list" tal:content="rower.name" tal:attributes="value rower.id">Rower</option>
-          </select></p>
-          <p>     Date (YYYY-MM-DD):  <input type="date" name="ergrecord_date"/></p>
-          <p>     30 minute distance: <input type="text" name="ergrecord_distance"/>
-          <input type="submit" name="form.ergrecord_added" value="Add"/></p>
-        </form>
-        <br/>
-        <form action="${request.application_url}" method="post">
-          <p>View ergs for
-            <select name="rower_id">
-              <option value=0 >All Rowers</option>
-              <option tal:repeat="rower rower_list" tal:content="rower.name" tal:attributes="value rower.id">Rower</option>
-            </select>
-            as a 
+<p>Here are your options:</p><br/>
+<hr/>
+
+<h3>Add an fixed-distance erg</h3>
+<form action="${request.application_url}/home/" method="post">
+  Date (YYYY-MM-DD): <input type="text" name="distance_erg_date" id="datepicker"  autocomplete="off"/><br/>
+  Distance:          <select name="distance_erg_distance">
+                       <option tal:repeat="erg_type_distance erg_type_distance_list" tal:content="erg_type_distance.distance" tal:attributes="value erg_type_distance.distance">Distance</option>
+                     </select><br/>
+  Time (mm:ss.t):    <input type="text" name="distance_erg_time_min" style="width: 3em;" maxlength="3"/>:
+                     <input type="text" name="distance_erg_time_sec" style="width: 2em;" maxlength="2"/>.
+                     <input type="text" name="distance_erg_time_ten" style="width: 2em;" maxlength="1"/><br/>
+                     <input type="submit" name="form.distance_erg_record_added" value="Add"/>
+</form>
+<br/>
+<hr/>
+
+<h3>Add an fixed-time erg</h3>
+<br/>
+<hr/>
+
+<h3>View stuff</h3>
+<br/>
+<hr/>
+
+<h3>Management stuff</h3>
+<p>
+  <a href="">Change my password</a><br/>
+  <a href="${request.application_url}/admin/">Checkout the admin pages</a><br/>
+  <a href="${request.application_url}/logout/">Logout</a><br/>
+</p>
+<br/>
+<hr/>
+
+
+<!--<form action="${request.application_url}" method="post">
+  <p>View ergs for <select name="rower_id">
+                     <option value=0 >All Rowers</option>
+                     <option tal:repeat="rower rower_list" tal:content="rower.name" tal:attributes="value rower.id">Rower</option>
+                   </select> as a 
             <input type="radio" name="display_type" value="table"/>table or 
             <input type="radio" name="display_type" value="graph"/>graph?
             <input type="submit" name="form.display_requested" value="Show Me"/>
-          </p>
-        </form>
-      </div>
-    </div>
-  </div>
-  <div id="footer">
-    <div class="footer"
-         >&copy; Copyright 2013, P. Bunch.</div>
-  </div>
-</body>
-</html>
+  </p>
+</form>-->
