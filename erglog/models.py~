@@ -13,6 +13,7 @@ from sqlalchemy import (
     )
 
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.exc import DBAPIError
 
 from sqlalchemy.orm import (
     scoped_session,
@@ -44,6 +45,27 @@ class DBInterface(object):
         try:
             rower = DBSession.query(Rower).filter_by(username=username).one()
             return rower
+        except DBAPIError:
+            raise
+
+    def remove_rower_by_username(self, username):
+        try:
+            DBSession.delete(DBSession.query(Rower).filter_by(username=username).one())
+            DBSession.flush()
+        except DBAPIError:
+            raise     
+
+    def promote_admin(self, username):
+        try:
+            DBSession.query(Rower).filter_by(username=username).one().admin = True
+            DBSession.flush()
+        except DBAPIError:
+            raise
+
+    def demote_admin(self, username):
+        try:
+            DBSession.query(Rower).filter_by(username=username).one().admin = False
+            DBSession.flush()
         except DBAPIError:
             raise
         
@@ -95,7 +117,7 @@ class ErgRecordTime(Base):
     __tablename__ = 'time_erg_records'
     id = Column(Integer, primary_key=True)
     rower_id = Column(Integer, ForeignKey('rowers.id'))
-    rower = relationship("Rower", backref=backref('time_erg_records', order_by=id))
+    rower = relationship("Rower", backref=backref('time_erg_records', order_by=id, cascade="all, delete, delete-orphan"))
     date = Column(Date, unique=True)
     time = Column(Integer, ForeignKey('fixed_times.time'))
     distance = Column(Integer)
@@ -110,7 +132,7 @@ class ErgRecordDistance(Base):
     __tablename__ = 'distance_erg_records'
     id = Column(Integer, primary_key=True)
     rower_id = Column(Integer, ForeignKey('rowers.id'))
-    rower = relationship("Rower", backref=backref('distance_erg_records', order_by=id))
+    rower = relationship("Rower", backref=backref('distance_erg_records', order_by=id, cascade="all, delete, delete-orphan"))
     date = Column(Date, unique=True)
     time = Column(Integer)
     distance = Column(Integer, ForeignKey('fixed_distances.distance'))

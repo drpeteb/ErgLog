@@ -77,9 +77,14 @@ def home(request):
             time_min = int(request.params['distance_erg_time_min'])
             time_sec = int(request.params['distance_erg_time_sec'])
             time_ten = int(request.params['distance_erg_time_ten'])
-            time = input_time(time_min, time_sec, time_ten)
         except ValueError:
             message = 'Please use numbers to record your time.'
+            still_good = False
+
+        try:
+            time = input_time(time_min, time_sec, time_ten)
+        except TimeError:
+            message = 'That\'s not a valid time. No more than 60 seconds in a minute, 10 tenths in a second, please.'
             still_good = False
 
         try:
@@ -93,6 +98,31 @@ def home(request):
             try:
                 DBI.add_to_db(erg_record)
                 message='Added new distance erg: '+ rower.name + ' rowed ' + str(distance) + 'm in ' + output_time(time) + ' minutes on ' + str(date.date()) + '. Thankyou.'
+            except DBAPIError:
+                message='Failed to add new erg. You\'ve probably already recorded one for that date. Sorry.'
+
+    elif 'form.time_erg_record_added' in request.params:
+        # Adding an erg record
+        still_good = True
+        time = int(request.params['time_erg_time'])
+
+        try:
+            distance = int(request.params['time_erg_distance'])
+        except ValueError:
+            message = 'Please use numbers to record your distance.'
+            still_good = False
+
+        try:
+            date = dt.datetime.strptime(request.params['time_erg_date'], '%Y-%m-%d')
+        except ValueError:
+            message = 'I don\'t recognise that date.'
+            still_good = False
+        
+        if still_good:
+            erg_record = ErgRecordTime(rower.id, date, time, distance)
+            try:
+                DBI.add_to_db(erg_record)
+                message='Added new time erg: '+ rower.name + ' rowed ' + str(distance) + 'm in ' + output_time(time) + ' minutes on ' + str(date.date()) + '. Thankyou.'
             except DBAPIError:
                 message='Failed to add new erg. You\'ve probably already recorded one for that date. Sorry.'
 
@@ -115,7 +145,7 @@ def home(request):
 @view_config(route_name='admin', renderer='templates/generic_page.pt', permission='admin')
 def admin_page(request):
 
-    rower_list = DBI.list_all(Rower)
+    username = authenticated_userid(request)
 
     if 'form.rower_added' in request.params:
         # Adding a rower
@@ -128,6 +158,33 @@ def admin_page(request):
             message='Added new rower: ' + rower_name + '. Thankyou.'
         except DBAPIError:
             message='Failed to add new rower. The username or name probably already exists. Sorry.'
+
+    if 'form.rower_removed' in request.params:
+        # Removing a rower
+        username_for_removal = request.params['rower_for_removal']
+        try:
+            DBI.remove_rower_by_username(username_for_removal)
+            message='Removed a rower: ' + username_for_removal + '. Good riddance.'
+        except DBAPIError:
+            message='Failed to remove rower. Sorry.'
+
+    elif 'form.admin_promoted' in request.params:
+        # Promote an admin from the masses
+        username_for_promotion = request.params['rower_for_promotion']
+        try:
+            DBI.promote_admin(username_for_promotion)
+            message='Promoted a new admin.'
+        except DBAPIError:
+            message='Failed to promote new admin. Sorry.'
+
+    elif 'form.admin_demoted' in request.params:
+        # Demote an admin back to where they belong
+        username_for_demotion = request.params['admin_for_demotion']
+        try:
+            DBI.demote_admin(username_for_demotion)
+            message='Demoted an admin back to the ranks.'
+        except DBAPIError:
+            message='Failed to demote admin. Sorry.'
 
     elif 'form.distance_erg_added' in request.params:
         # Adding a new distance erg
@@ -167,7 +224,9 @@ def admin_page(request):
         # Otherwise return default
         message='Welcome master. What is your command?'
 
-    body = render('templates/admin.pt', dict(rower_list=rower_list), request)
+    rower_list = DBI.list_all(Rower)
+
+    body = render('templates/admin.pt', dict(current_username=username, rower_list=rower_list), request)
     return dict(message=message, body=body)
 
 

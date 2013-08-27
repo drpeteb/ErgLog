@@ -1,6 +1,6 @@
-Sort indentation in home.pt
-Add admin.pt
-Rewrite home callable and template
-Rewrite admin callable and template
 Rewrite table display
 Rewrite graph display
+
+_Admin Tasks_
+Change someone's password
+Add and delete records for another person

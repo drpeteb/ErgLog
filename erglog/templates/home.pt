@@ -1,12 +1,12 @@
 <p>Here are your options:</p><br/>
 <hr/>
 
-<h3>Add an fixed-distance erg</h3>
+<h3>Add a fixed-distance erg</h3>
 <form action="${request.application_url}/home/" method="post">
-  Date (YYYY-MM-DD): <input type="text" name="distance_erg_date" id="datepicker"  autocomplete="off"/><br/>
+  Date (YYYY-MM-DD): <input type="text" name="distance_erg_date" class="datepicker"  autocomplete="off"/><br/>
   Distance:          <select name="distance_erg_distance">
                        <option tal:repeat="erg_type_distance erg_type_distance_list" tal:content="erg_type_distance.distance" tal:attributes="value erg_type_distance.distance">Distance</option>
-                     </select><br/>
+                     </select>m<br/>
   Time (mm:ss.t):    <input type="text" name="distance_erg_time_min" style="width: 3em;" maxlength="3"/>:
                      <input type="text" name="distance_erg_time_sec" style="width: 2em;" maxlength="2"/>.
                      <input type="text" name="distance_erg_time_ten" style="width: 2em;" maxlength="1"/><br/>
@@ -15,7 +15,15 @@
 <br/>
 <hr/>
 
-<h3>Add an fixed-time erg</h3>
+<h3>Add a fixed-time erg</h3>
+<form action="${request.application_url}/home/" method="post">
+  Date (YYYY-MM-DD): <input type="text" name="time_erg_date" class="datepicker"  autocomplete="off"/><br/>
+  Time:              <select name="time_erg_time">
+                       <option tal:repeat="erg_type_time erg_type_time_list" tal:content="erg_type_time.time" tal:attributes="value erg_type_time.time">Time</option>
+                     </select>min<br/>
+  Distance:          <input type="text" name="time_erg_time" style="width: 3em;" maxlength="5"/>m<br/>
+                     <input type="submit" name="form.distance_erg_record_added" value="Add"/>
+</form>
 <br/>
 <hr/>
 

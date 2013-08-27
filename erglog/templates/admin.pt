@@ -11,6 +11,36 @@
 <br/>
 <hr/>
 
+<h3>Remove rower (BEWARE: ALL RECORDS WILL BE PERMANENTLY LOST!)</h3>
+<form action="${request.application_url}/admin/" method="post">
+  Rower: <select name="rower_for_removal">
+                       <option tal:repeat="rower python: [rr for rr in rower_list if not(current_username==rr.username)]" tal:content="rower.name" tal:attributes="value rower.username">Rower Name</option>
+         </select><br/>
+            <input type="submit" name="form.rower_removed" value="Remove"/><br/>
+</form>
+<br/>
+<hr/>
+
+<h3>Grant somebody the power of the admin</h3>
+<form action="${request.application_url}/admin/" method="post">
+  Rower: <select name="rower_for_promotion">
+                       <option tal:repeat="rower python: [rr for rr in rower_list if not(rr.admin)]" tal:content="rower.name" tal:attributes="value rower.username">Rower Name</option>
+         </select><br/>
+         <input type="submit" name="form.admin_promoted" value="Promote"/><br/>
+</form>
+<br/>
+<hr/>
+
+<h3>Banish somebody from the circle of mighty admins</h3>
+<form action="${request.application_url}/admin/" method="post">
+  Admin: <select name="admin_for_demotion">
+                       <option tal:repeat="rower python: [rr for rr in rower_list if (rr.admin and not(current_username==rr.username))]" tal:content="rower.name" tal:attributes="value rower.username">Rower Name</option>
+         </select><br/>
+         <input type="submit" name="form.admin_demoted" value="Demote"/><br/>
+</form>
+<br/>
+<hr/>
+
 <h3>Add a set distance for erg records</h3>
 <form action="${request.application_url}/admin/" method="post">
   Distance: <input type="text" name="distance"/>m<br/>

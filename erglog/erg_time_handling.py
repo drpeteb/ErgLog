@@ -1,4 +1,9 @@
+class TimeError(Exception):
+    pass
+
 def input_time(min, sec, ten):
+    if (sec > 59) or (ten > 9):
+        raise TimeError
     time = 600*min + 10*sec + ten
     return time
 

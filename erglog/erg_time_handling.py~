@@ -7,7 +7,6 @@ def output_time(time):
     time = time%600
     sec = (time-(time%10))/10
     ten = time%10
-    sec_str = str(sec).zfill(2)
-    time_string = str(min) + ':' + sec_str + '.' + str(ten)
+    time_string = str(min) + ':' + str(sec).zfill(2) + '.' + str(ten)
     return time_string
     
