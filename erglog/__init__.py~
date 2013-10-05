@@ -30,11 +30,15 @@ def main(global_config, **settings):
     config.add_static_view('static', 'static', cache_max_age=3600)
     ### Routes ###
     config.add_route('login', '/')
-    config.add_route('login', '/logout/')
+    config.add_route('logout', '/logout/')
     config.add_route('home', '/home/')
     config.add_route('admin', '/admin/')
-    config.add_route('table', '/table/{rower_id}')
-    config.add_route('graph', '/graph/{rower_id}')
+    config.add_route('add-distance-erg', '/add-distance-erg/{multiple}of{increment}/{username}')
+    config.add_route('add-time-erg', '/add-time-erg/{multiple}of{increment}/{username}')
+    config.add_route('view-distance-all', '/view-distance/{multiple}of{increment}/')
+    config.add_route('view-time-all', '/view-time/{multiple}of{increment}/')
+    config.add_route('view-distance-individual', '/view-distance/{multiple}of{increment}/{username}/')
+    config.add_route('view-time-individual', '/view-time/{multiple}of{increment}/{username}/')
     ##############
     config.scan()
     

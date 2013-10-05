@@ -1,21 +1,31 @@
 <p>Here are your options:</p><br/>
+<div>
 <hr/>
 
-<h3>Add a fixed-distance erg</h3>
+<h3>Add an erg</h3>
+
 <form action="${request.application_url}/home/" method="post">
-  Date (YYYY-MM-DD): <input type="text" name="distance_erg_date" class="datepicker"  autocomplete="off"/><br/>
-  Distance:          <select name="distance_erg_distance">
-                       <option tal:repeat="erg_type_distance erg_type_distance_list" tal:content="erg_type_distance.distance" tal:attributes="value erg_type_distance.distance">Distance</option>
-                     </select>m<br/>
-  Time (mm:ss.t):    <input type="text" name="distance_erg_time_min" style="width: 3em;" maxlength="3"/>:
-                     <input type="text" name="distance_erg_time_sec" style="width: 2em;" maxlength="2"/>.
-                     <input type="text" name="distance_erg_time_ten" style="width: 2em;" maxlength="1"/><br/>
-                     <input type="submit" name="form.distance_erg_record_added" value="Add"/>
+  Fixed distance:
+  <select name="distance_erg_type_id">
+    <option tal:repeat="erg_type_distance erg_type_distance_list" tal:content="python: '%sm in blocks of %sm' % (str(erg_type_distance.multiple*erg_type_distance.increment), str(erg_type_distance.increment))" tal:attributes="value erg_type_distance.id">Distance</option>
+  </select>
+  <input type="submit" name="form.add_distance_erg_record" value="Add"/>
 </form>
+
+<form action="${request.application_url}/home/" method="post">
+  Fixed time:
+  <select name="time_erg_type_id">
+    <option tal:repeat="erg_type_time erg_type_time_list" tal:content="python: '%s min in blocks of %s min' % (str(erg_type_time.multiple*erg_type_time.increment), str(erg_type_time.increment))" tal:attributes="value erg_type_time.id">Time</option>
+  </select>
+  <input type="submit" name="form.add_time_erg_record" value="Add"/>
+</form>
+
 <br/>
 <hr/>
+</div>
 
-<h3>Add a fixed-time erg</h3>
+
+<!--<h3>Add a fixed-time erg</h3>
 <form action="${request.application_url}/home/" method="post">
   Date (YYYY-MM-DD): <input type="text" name="time_erg_date" class="datepicker"  autocomplete="off"/><br/>
   Time:              <select name="time_erg_time">
@@ -25,11 +35,42 @@
                      <input type="submit" name="form.distance_erg_record_added" value="Add"/>
 </form>
 <br/>
-<hr/>
+<hr/>-->
 
-<h3>View stuff</h3>
+<!--<h3>View stuff</h3>
+<form action="${request.application_url}/home/" method="post">
+View a table of all 
+  <select name="distance_erg_distance">
+  <option tal:repeat="erg_type_distance erg_type_distance_list"
+          tal:content="erg_type_distance.distance"
+          tal:attributes="value erg_type_distance.distance">Distance</option>
+  </select>
+m ergs for
+  <select name="rower_to_table">
+    <option tal:repeat="rower rower_list" 
+            tal:content="rower.name"
+            tal:attributes="value rower.username">Rower Name</option>
+  </select>
+.
+  <input type="submit" name="form.view_distance_erg_table" value="Go"/>
+
+</form>
+<form action="${request.application_url}/home/" method="post">
+View a table of all 
+  <select name="rower_to_table">
+    <option tal:repeat="rower rower_list" 
+            tal:content="rower.name"
+            tal:attributes="value rower.username">Rower Name</option>
+  </select>
+min ergs for
+  <select name="rower_id">
+  <option tal:repeat="rower rower_list" tal:content="rower.name" tal:attributes="value rower.id">Rower</option>
+  </select>
+.
+  <input type="submit" name="form.view_time_erg_table" value="Go"/>
+</form>
 <br/>
-<hr/>
+<hr/>-->
 
 <h3>Management stuff</h3>
 <p>

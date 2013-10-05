@@ -9,6 +9,7 @@ from sqlalchemy import (
     Text,
     Date,
     Boolean,
+    PickleType,
     ForeignKey
     )
 
@@ -19,7 +20,11 @@ from sqlalchemy.orm import (
     scoped_session,
     sessionmaker,
     relationship,
-    backref
+    backref,
+    )
+
+from sqlalchemy.schema import(
+    UniqueConstraint,
     )
 
 from zope.sqlalchemy import ZopeTransactionExtension
@@ -69,6 +74,18 @@ class DBInterface(object):
         except DBAPIError:
             raise
         
+    def get_thing_by_id(self, class_to_fetch, id):
+        try:
+            thing = DBSession.query(class_to_fetch).filter_by(id=id).one()
+            return thing
+        except DBAPIError:
+            raise
+
+    def get_erg_type_by_mulitple_and_increment(self, class_to_fetch, multiple, increment):
+        try:
+            id = DBSession.query(class_to_fetch).filter_by(multiple=multiple).filter_by(increment=increment).one()
+        except:
+            raise
 
 DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
 DBI = DBInterface()
@@ -100,18 +117,26 @@ class Rower(Base):
 class ErgTypeTime(Base):
     __tablename__ = 'fixed_times'
     id = Column(Integer, primary_key=True)
-    time = Column(Integer, unique=True)
+    increment = Column(Integer)
+    multiple = Column(Integer)
 
-    def __init__(self, time):
-        self.time = time
+    __table_args__ = (UniqueConstraint('increment', 'multiple', name='_increment_multiple_uc'),)
+
+    def __init__(self, increment, multiple):
+        self.increment = increment
+        self.multiple = multiple
 
 class ErgTypeDistance(Base):
     __tablename__ = 'fixed_distances'
     id = Column(Integer, primary_key=True)
-    distance = Column(Integer, unique=True)
+    increment = Column(Integer)
+    multiple = Column(Integer)
 
-    def __init__(self, distance):
-        self.distance = distance
+    __table_args__ = (UniqueConstraint('increment', 'multiple', name='_increment_multiple_uc'),)
+
+    def __init__(self, increment, multiple):
+        self.increment = increment
+        self.multiple = multiple
 
 class ErgRecordTime(Base):
     __tablename__ = 'time_erg_records'
@@ -119,14 +144,18 @@ class ErgRecordTime(Base):
     rower_id = Column(Integer, ForeignKey('rowers.id'))
     rower = relationship("Rower", backref=backref('time_erg_records', order_by=id, cascade="all, delete, delete-orphan"))
     date = Column(Date)
-    time = Column(Integer, ForeignKey('fixed_times.time'))
+    increment = Column(Integer, ForeignKey('fixed_times.increment'))
+    multiple = Column(Integer, ForeignKey('fixed_times.multiple'))
     distance = Column(Integer)
+    split_list = Column(PickleType)
 
-    def __init__(self, rower_id, date, time, distance):
+    def __init__(self, rower_id, date, distance, increment, multiple, split_list):
         self.rower_id = rower_id
         self.date = date
         self.distance = distance
-        self.time = time
+        self.increment = increment
+        self.multiple = multiple
+        self.split_list = split_list
 
 class ErgRecordDistance(Base):
     __tablename__ = 'distance_erg_records'
@@ -134,11 +163,15 @@ class ErgRecordDistance(Base):
     rower_id = Column(Integer, ForeignKey('rowers.id'))
     rower = relationship("Rower", backref=backref('distance_erg_records', order_by=id, cascade="all, delete, delete-orphan"))
     date = Column(Date)
+    increment = Column(Integer, ForeignKey('fixed_distances.increment'))
+    multiple = Column(Integer, ForeignKey('fixed_distances.multiple'))
     time = Column(Integer)
-    distance = Column(Integer, ForeignKey('fixed_distances.distance'))
+    split_list = Column(PickleType)
 
-    def __init__(self, rower_id, date, time, distance):
+    def __init__(self, rower_id, date, time, increment, multiple, split_list):
         self.rower_id = rower_id
         self.date = date
-        self.distance = distance
         self.time = time
+        self.increment = increment
+        self.multiple = multiple
+        self.split_list = split_list

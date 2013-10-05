@@ -16,7 +16,7 @@
   Rower: <select name="rower_for_removal">
                        <option tal:repeat="rower python: [rr for rr in rower_list if not(current_username==rr.username)]" tal:content="rower.name" tal:attributes="value rower.username">Rower Name</option>
          </select><br/>
-            <input type="submit" name="form.rower_removed" value="Add"/><br/>
+            <input type="submit" name="form.rower_removed" value="Remove"/><br/>
 </form>
 <br/>
 <hr/>
@@ -43,16 +43,18 @@
 
 <h3>Add a set distance for erg records</h3>
 <form action="${request.application_url}/admin/" method="post">
-  Distance: <input type="text" name="distance"/>m<br/>
-            <input type="submit" name="form.distance_erg_added" value="Add"/><br/>
+  Increment length:     <input type="text" name="increment"/>m<br/>
+  Number of increments: <input type="text" name="multiple"/><br/>
+                        <input type="submit" name="form.distance_erg_added" value="Add"/><br/>
 </form>
 <br/>
 <hr/>
 
 <h3>Add a set time for erg records</h3>
 <form action="${request.application_url}/admin/" method="post">
-  Time: <input type="text" name="time"/>min<br/>
-        <input type="submit" name="form.time_erg_added" value="Add"/><br/>
+  Increment length:     <input type="text" name="increment"/>min<br/>
+  Number of increments: <input type="text" name="multiple"/><br/>
+                        <input type="submit" name="form.time_erg_added" value="Add"/><br/>
 </form>
 <br/>
 <hr/>
