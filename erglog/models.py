@@ -37,6 +37,7 @@ class DBInterface(object):
             DBSession.add(thing)
             DBSession.flush()
         except DBAPIError:
+            DBSession.rollback()
             raise
 
     def list_all(self, thing):
@@ -58,6 +59,7 @@ class DBInterface(object):
             DBSession.delete(DBSession.query(Rower).filter_by(username=username).one())
             DBSession.flush()
         except DBAPIError:
+            DBSession.rollback()
             raise     
 
     def promote_admin(self, username):
@@ -65,6 +67,7 @@ class DBInterface(object):
             DBSession.query(Rower).filter_by(username=username).one().admin = True
             DBSession.flush()
         except DBAPIError:
+            DBSession.rollback()
             raise
 
     def demote_admin(self, username):
@@ -72,6 +75,7 @@ class DBInterface(object):
             DBSession.query(Rower).filter_by(username=username).one().admin = False
             DBSession.flush()
         except DBAPIError:
+            DBSession.rollback()
             raise
         
     def get_thing_by_id(self, class_to_fetch, id):
@@ -81,10 +85,11 @@ class DBInterface(object):
         except DBAPIError:
             raise
 
-    def get_erg_type_by_mulitple_and_increment(self, class_to_fetch, multiple, increment):
+    def get_ergs_by_type_and_rower(self, erg_class, erg_type_id, rower_id):
         try:
-            id = DBSession.query(class_to_fetch).filter_by(multiple=multiple).filter_by(increment=increment).one()
-        except:
+            erg_list = DBSession.query(erg_class).filter_by(erg_type_id=erg_type_id).filter_by(rower_id=rower_id).all()
+            return erg_list
+        except DBAPIError:
             raise
 
 DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
@@ -144,18 +149,18 @@ class ErgRecordTime(Base):
     rower_id = Column(Integer, ForeignKey('rowers.id'))
     rower = relationship("Rower", backref=backref('time_erg_records', order_by=id, cascade="all, delete, delete-orphan"))
     date = Column(Date)
-    increment = Column(Integer, ForeignKey('fixed_times.increment'))
-    multiple = Column(Integer, ForeignKey('fixed_times.multiple'))
     distance = Column(Integer)
     split_list = Column(PickleType)
 
-    def __init__(self, rower_id, date, distance, increment, multiple, split_list):
+    erg_type_id = Column(Integer, ForeignKey('fixed_times.id'))
+    erg_type = relationship("ErgTypeTime", backref=backref('time_erg_records', order_by=id, cascade="all, delete, delete-orphan"))
+
+    def __init__(self, rower_id, date, distance, erg_type_id, split_list):
         self.rower_id = rower_id
         self.date = date
         self.distance = distance
-        self.increment = increment
-        self.multiple = multiple
         self.split_list = split_list
+        self.erg_type_id = erg_type_id
 
 class ErgRecordDistance(Base):
     __tablename__ = 'distance_erg_records'
@@ -163,15 +168,15 @@ class ErgRecordDistance(Base):
     rower_id = Column(Integer, ForeignKey('rowers.id'))
     rower = relationship("Rower", backref=backref('distance_erg_records', order_by=id, cascade="all, delete, delete-orphan"))
     date = Column(Date)
-    increment = Column(Integer, ForeignKey('fixed_distances.increment'))
-    multiple = Column(Integer, ForeignKey('fixed_distances.multiple'))
     time = Column(Integer)
     split_list = Column(PickleType)
 
-    def __init__(self, rower_id, date, time, increment, multiple, split_list):
+    erg_type_id = Column(Integer, ForeignKey('fixed_distances.id'))
+    erg_type = relationship("ErgTypeDistance", backref=backref('distance_erg_records', order_by=id, cascade="all, delete, delete-orphan"))
+
+    def __init__(self, rower_id, date, time, erg_type_id, split_list):
         self.rower_id = rower_id
         self.date = date
         self.time = time
-        self.increment = increment
-        self.multiple = multiple
         self.split_list = split_list
+        self.erg_type_id = erg_type_id

@@ -1,0 +1,10 @@
+<h3 tal:content="python:'%s: %um erg in blocks of %um'%(name,distance,increment)">erg type</h3>
+<table>
+  <tr><td>Date</td><td>Time</td><td>Block Times</td></tr>
+  <tr tal:repeat="entry display_list">
+    <td tal:content="entry.date">00-00-00</td>
+    <td tal:content="entry.time">--:--.-</td>
+    <td tal:content="entry.block_time_list">--:--.-</td>
+    <td tal:content="entry.block_split_list">--:--.-</td>
+  </tr>
+</table> 

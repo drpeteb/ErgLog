@@ -33,12 +33,12 @@ def main(global_config, **settings):
     config.add_route('logout', '/logout/')
     config.add_route('home', '/home/')
     config.add_route('admin', '/admin/')
-    config.add_route('add-distance-erg', '/add-distance-erg/{multiple}of{increment}/{username}/')
-    config.add_route('add-time-erg', '/add-time-erg/{multiple}of{increment}/{username}/')
-    config.add_route('view-distance-all', '/view-distance/{multiple}of{increment}/')
-    config.add_route('view-time-all', '/view-time/{multiple}of{increment}/')
-    config.add_route('view-distance-individual', '/view-distance/{multiple}of{increment}/{username}/')
-    config.add_route('view-time-individual', '/view-time/{multiple}of{increment}/{username}/')
+    config.add_route('add-distance-erg', '/add-distance-erg/{erg_type_id}/{username}/')
+    config.add_route('view-distance-individual', '/view-distance/{erg_type_id}/{username}/')
+    #config.add_route('add-time-erg', '/add-time-erg/{erg_type_id}/{username}/')
+    #config.add_route('view-distance-all', '/view-distance/{multiple}of{increment}/')
+    #config.add_route('view-time-all', '/view-time/{multiple}of{increment}/')
+    #config.add_route('view-time-individual', '/view-time/{multiple}of{increment}/{username}/')
     ##############
     config.scan()
     

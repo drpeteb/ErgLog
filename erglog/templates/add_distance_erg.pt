@@ -1,9 +1,7 @@
-<h3>Enter erg details</h3>
+<h3>Enter erg details for</h3>
+<h3 tal:content="python:'%s: %um erg in blocks of %um'%(name,distance,increment)">erg type</h3>
 <hr/>
-<form action="${add_distance_url}" method="post"
-      tal:define="min_name_list python:['min_block_%u'%(bb+1) for bb in range(multiple)]"
-      tal:define="sec_name_list python:['sec_block_%u'%(bb+1) for bb in range(multiple)]"
-      tal:define="ten_name_list python:['ten_block_%u'%(bb+1) for bb in range(multiple)]">
+<form action="${add_distance_url}" method="post">
 Date (YYYY-MM-DD): <input type="text" name="distance_erg_date" class="datepicker"  autocomplete="off"/><br/>
 Times (mm:ss.t) for each block
 <div tal:repeat="block_num python: range(multiple)">
@@ -14,3 +12,8 @@ Times (mm:ss.t) for each block
 </div>
 <input type="submit" name="form.distance_erg_record_added" value="Add"/>
 </form>
+
+<hr/>
+<p>
+<a href="${request.application_url}/home/">All done</a><br/>
+</p>

@@ -1,0 +1,9 @@
+<table>
+  <tr><td>Date</td><td>Rower</td><td>Distance (m)</td><td>Split</td></tr>
+  <tr tal:repeat="entry entries">
+    <td tal:content="entry.date">00-00-00</td>
+    <td tal:content="entry.rower">-------</td>
+    <td tal:content="entry.distance">----</td>
+    <td tal:content="entry.split">--:--.-</td>
+  </tr>
+</table> 
