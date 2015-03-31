@@ -30,7 +30,7 @@ from .erg_time_handling import *
 import datetime as dt
 import matplotlib.pyplot as plt
 import matplotlib.dates as mpl_dates
-import StringIO
+import io
 #import xkcdify
 
 ### LOGIN PAGE VIEW CALLBACKS ###
@@ -75,7 +75,7 @@ def home_page(request):
             erg_type_id = int(request.params['distance_erg_type_id'])
             erg_type = DBI.get_thing_by_id(ErgTypeDistance, erg_type_id)
             return HTTPFound(location = request.route_url('add-distance-erg', erg_type_id=str(erg_type_id), username=username))
-        except KeyError,DBAPIError:
+        except [KeyError,DBAPIError]:
             message = 'Ooh-er! Something\'s gone wrong. I don\'t recognise that type of erg.'
 
     elif 'form.add_time_erg_record' in request.params:
@@ -84,7 +84,7 @@ def home_page(request):
             erg_type_id = int(request.params['time_erg_type_id'])
             erg_type = DBI.get_thing_by_id(ErgTypeTime, erg_type_id)
             return HTTPFound(location = request.route_url('add-time-erg', erg_type_id=str(erg_type_id), username=username))
-        except KeyError,DBAPIError:
+        except [KeyError,DBAPIError]:
             message = 'Ooh-er! Something\'s gone wrong. I don\'t recognise that type of erg.'
 
     elif 'form.view_individual_distance_ergs' in request.params:
@@ -94,7 +94,7 @@ def home_page(request):
             erg_type = DBI.get_thing_by_id(ErgTypeDistance, erg_type_id)
             rower_to_view = request.params['rower_to_view']
             return HTTPFound(location = request.route_url('view-distance-individual', erg_type_id=str(erg_type_id), username=username))
-        except KeyError,DBAPIError:
+        except [KeyError,DBAPIError]:
             message = 'Ooh-er! Something\'s gone wrong. I don\'t recognise that type of erg.'
 
     elif 'form.view_individual_time_ergs' in request.params:
@@ -104,7 +104,7 @@ def home_page(request):
             erg_type = DBI.get_thing_by_id(ErgTypeTime, erg_type_id)
             rower_to_view = request.params['rower_to_view']
             return HTTPFound(location = request.route_url('view-time-individual', erg_type_id=str(erg_type_id), username=username))
-        except KeyError,DBAPIError:
+        except [KeyError,DBAPIError]:
             message = 'Ooh-er! Something\'s gone wrong. I don\'t recognise that type of erg.'
 
     else:
@@ -236,7 +236,7 @@ def add_distance_erg_page(request):
     try:
         erg_type_id = int(request.matchdict['erg_type_id'])
         erg_type = DBI.get_thing_by_id(ErgTypeDistance, erg_type_id)
-    except ValueError, DBAPIError:
+    except [ValueError,DBAPIError]:
         return HTTPNotFound('No such page')
 
     # Ensure the subject exists
@@ -328,7 +328,7 @@ def view_distance_individual_page(request):
     try:
         erg_type_id = int(request.matchdict['erg_type_id'])
         erg_type = DBI.get_thing_by_id(ErgTypeDistance, erg_type_id)
-    except ValueError, DBAPIError:
+    except [ValueError,DBAPIError]:
         return HTTPNotFound('No such page')
 
     # Ensure the subject exists
