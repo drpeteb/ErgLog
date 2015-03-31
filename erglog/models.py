@@ -122,26 +122,23 @@ class Rower(Base):
 class ErgTypeTime(Base):
     __tablename__ = 'fixed_times'
     id = Column(Integer, primary_key=True)
-    increment = Column(Integer)
-    multiple = Column(Integer)
+    time = Column(Integer)
 
-    __table_args__ = (UniqueConstraint('increment', 'multiple', name='_increment_multiple_uc'),)
+#    __table_args__ = (UniqueConstraint('increment', 'multiple', name='_increment_multiple_uc'),)
 
-    def __init__(self, increment, multiple):
-        self.increment = increment
-        self.multiple = multiple
+    def __init__(self, time):
+        self.time = time
 
 class ErgTypeDistance(Base):
     __tablename__ = 'fixed_distances'
     id = Column(Integer, primary_key=True)
-    increment = Column(Integer)
-    multiple = Column(Integer)
+    distance = Column(Integer)
 
-    __table_args__ = (UniqueConstraint('increment', 'multiple', name='_increment_multiple_uc'),)
+#    __table_args__ = (UniqueConstraint('increment', 'multiple', name='_increment_multiple_uc'),)
 
-    def __init__(self, increment, multiple):
-        self.increment = increment
-        self.multiple = multiple
+    def __init__(self, distance):
+        self.distance = distance
+
 
 class ErgRecordTime(Base):
     __tablename__ = 'time_erg_records'
@@ -150,16 +147,16 @@ class ErgRecordTime(Base):
     rower = relationship("Rower", backref=backref('time_erg_records', order_by=id, cascade="all, delete, delete-orphan"))
     date = Column(Date)
     distance = Column(Integer)
-    split_list = Column(PickleType)
+    #split_list = Column(PickleType)
 
     erg_type_id = Column(Integer, ForeignKey('fixed_times.id'))
     erg_type = relationship("ErgTypeTime", backref=backref('time_erg_records', order_by=id, cascade="all, delete, delete-orphan"))
 
-    def __init__(self, rower_id, date, distance, erg_type_id, split_list):
+    def __init__(self, rower_id, date, distance, erg_type_id):#, split_list):
         self.rower_id = rower_id
         self.date = date
         self.distance = distance
-        self.split_list = split_list
+#        self.split_list = split_list
         self.erg_type_id = erg_type_id
 
 class ErgRecordDistance(Base):
@@ -169,14 +166,14 @@ class ErgRecordDistance(Base):
     rower = relationship("Rower", backref=backref('distance_erg_records', order_by=id, cascade="all, delete, delete-orphan"))
     date = Column(Date)
     time = Column(Integer)
-    split_list = Column(PickleType)
+    #split_list = Column(PickleType)
 
     erg_type_id = Column(Integer, ForeignKey('fixed_distances.id'))
     erg_type = relationship("ErgTypeDistance", backref=backref('distance_erg_records', order_by=id, cascade="all, delete, delete-orphan"))
 
-    def __init__(self, rower_id, date, time, erg_type_id, split_list):
+    def __init__(self, rower_id, date, time, erg_type_id):#, split_list):
         self.rower_id = rower_id
         self.date = date
         self.time = time
-        self.split_list = split_list
+        #self.split_list = split_list
         self.erg_type_id = erg_type_id

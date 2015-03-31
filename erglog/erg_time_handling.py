@@ -8,10 +8,10 @@ def input_time(min, sec, ten):
     return time
 
 def output_time(time):
-    min = (time-(time%600))/600
+    min = int( (time-(time%600))/600 )
     time = time%600
-    sec = (time-(time%10))/10
-    ten = time%10
-    time_string = str(min) + ':' + str(sec).zfill(2) + '.' + str(ten)
+    sec = int( (time-(time%10))/10 )
+    ten = int(time%10)
+    time_string = '{0}:{1}.{2}'.format(min,sec,ten)  #str(min) + ':' + str(sec).zfill(2) + '.' + str(ten)
     return time_string
     

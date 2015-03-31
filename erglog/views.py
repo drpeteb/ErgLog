@@ -172,42 +172,34 @@ def admin_page(request):
     elif 'form.distance_erg_added' in request.params:
         # Adding a new distance erg
         try:
-            increment = int(request.params['increment'])
-            multiple = int(request.params['multiple'])
-            distance = increment*multiple
-            if (distance < 0) or (increment < 0):
+            distance = int(request.params['distance'])
+            if (distance < 0):
                 message = 'Ya can\'t row a negative distance.'
-            elif (multiple < 1):
-                message = 'You must row at least one block.'
-            elif distance > 20000:
+            elif distance > 50000:
                 message = str(distance) + 'm! That\'s too far.'
             else:
-                erg_type = ErgTypeDistance(increment, multiple)
+                erg_type = ErgTypeDistance(distance)
                 DBI.add_to_db(erg_type)
-                message='Added a new distance erg type: ' + str(distance) + 'm as ' + str(multiple) + ' blocks of ' + str(increment) + 'm. Thankyou.'
+                message='Added a new distance erg type: ' + str(distance) + 'm. Thankyou.'
         except ValueError:
-            message = 'I don\'t understand what you\'ve entered. The incremental distance and multiple thereof must both be positive integers.'
+            message = 'I don\'t understand what you\'ve entered. The distance must be a positive integer.'
         except DBAPIError:
             message = 'Ooh-er! The database doesn\'t like that. Sorry.'
             
     elif 'form.time_erg_added' in request.params:
         # Adding a new time erg
         try:
-            increment = int(request.params['increment'])
-            multiple = int(request.params['multiple'])
-            time = increment*multiple
-            if (time < 0) or (increment < 0):
-                message = 'Ya can\'t row a negative time.'
-            elif (multiple < 1):
-                message = 'You must row at least one block.'
+            time = int(request.params['time'])
+            if (time < 0):
+                message = 'Ya can\'t row for a negative amount of time.'
             elif time > 120:
                 message = str(time) + 'min! That\'s too long.'
             else:
-                erg_type = ErgTypeTime(increment, multiple)
+                erg_type = ErgTypeTime(time)
                 DBI.add_to_db(erg_type)
-                message='Added a new time erg type: ' + str(time) + 'min as ' + str(multiple) + ' blocks of ' + str(increment) + 'min. Thankyou.'
+                message='Added a new time erg type: ' + str(time) + 'min. Thankyou.'
         except ValueError:
-            message = 'I don\'t understand what you\'ve entered. The incremental time and multiple thereof must both be positive integers.'
+            message = 'I don\'t understand what you\'ve entered. The time must be a positive integer.'
 
         except DBAPIError:
             message = 'Ooh-er! The database doesn\'t like that. Sorry.'
@@ -259,37 +251,27 @@ def add_distance_erg_page(request):
         except ValueError:
             message = 'I don\'t recognise that date.'
             still_good = False
-        
-        # Make a list of block times
-        block_time_list = []
-        for bb in range(erg_type.multiple):
 
-            try:
-                time_min = int(request.params['min_block_%u'%(bb+1)])
-                time_sec = int(request.params['sec_block_%u'%(bb+1)])
-                time_ten = int(request.params['ten_block_%u'%(bb+1)])
-            except ValueError:
-                message = 'Please use numbers to record your time.'
-                still_good = False
+        try:
+            time_min = int(request.params['mins'])
+            time_sec = int(request.params['secs'])
+            time_ten = int(request.params['tens'])
+        except ValueError:
+            message = 'Please use numbers to record your time.'
+            still_good = False
 
-            try:
-                time = input_time(time_min, time_sec, time_ten)
-            except TimeError:
-                message = 'That\'s not a valid time. No more than 60 seconds in a minute, 10 tenths in a second, please.'
-                still_good = False
-
-            # Store the block time
-            block_time_list.append(time)
-
-        # Total time
-        time = sum(block_time_list)
+        try:
+            time = input_time(time_min, time_sec, time_ten)
+        except TimeError:
+            message = 'That\'s not a valid time. No more than 60 seconds in a minute, 10 tenths in a second, please.'
+            still_good = False
 
         # Make a new record object and put it in the database
         if still_good:
-            erg_record = ErgRecordDistance(rower.id, date, time, erg_type_id, block_time_list)
+            erg_record = ErgRecordDistance(rower.id, date, time, erg_type_id)
             try:
                 DBI.add_to_db(erg_record)
-                message='Added new distance erg: '+ rower.name + ' rowed ' + str(erg_type.increment*erg_type.multiple) + 'm in ' + output_time(time) + ' on ' + str(date.date()) + '. Thankyou.'
+                message='Added new distance erg: {0} rowed {1!s}m in {2} on {3!s}. Thankyou.'.format(rower.name, int(erg_type.distance), output_time(time), date.date())
             except DBAPIError:
                 message='Failed to add new erg. You\'ve probably already recorded one for that date. Sorry.'
 
@@ -299,20 +281,19 @@ def add_distance_erg_page(request):
 
     add_distance_url = request.route_url('add-distance-erg', erg_type_id=erg_type_id, username=username)
 
-    min_name_list = ['min_block_%u'%(bb+1) for bb in range(erg_type.multiple)]
-    sec_name_list = ['sec_block_%u'%(bb+1) for bb in range(erg_type.multiple)]
-    ten_name_list = ['ten_block_%u'%(bb+1) for bb in range(erg_type.multiple)]
+    #min_name_list = ['min_block_%u'%(bb+1) for bb in range(erg_type.multiple)]
+    #sec_name_list = ['sec_block_%u'%(bb+1) for bb in range(erg_type.multiple)]
+    #ten_name_list = ['ten_block_%u'%(bb+1) for bb in range(erg_type.multiple)]
 
     temp_dict = dict(username=username,
                      name=rower.name,
-                     multiple=erg_type.multiple,
-                     increment=erg_type.increment,
-                     distance=erg_type.multiple*erg_type.increment,
-                     add_distance_url=add_distance_url,
-                     min_name_list=min_name_list,
-                     sec_name_list=sec_name_list,
-                     ten_name_list=ten_name_list,
+                     distance=erg_type.distance,
+                     add_distance_url=add_distance_url
                      )
+                     #min_name_list=min_name_list,
+                     #sec_name_list=sec_name_list,
+                     #ten_name_list=ten_name_list,
+                     #)
     body = render('templates/add_distance_erg.pt', temp_dict, request)
     return dict(message=message, body=body)
 
@@ -340,7 +321,7 @@ def view_distance_individual_page(request):
 
     # Get a list of ergs
     try:
-        erg_list = get_ergs_by_type_and_rower(ErgRecordDistance, erg_type_id, rower.id)
+        erg_list = DBI.get_ergs_by_type_and_rower(ErgRecordDistance, erg_type_id, rower.id)
     except DBAPIError:
         return HTTPNotFound('No such page')
 

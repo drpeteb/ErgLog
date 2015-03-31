@@ -43,8 +43,7 @@
 
 <h3>Add a set distance for erg records</h3>
 <form action="${request.application_url}/admin/" method="post">
-  Increment length:     <input type="text" name="increment"/>m<br/>
-  Number of increments: <input type="text" name="multiple"/><br/>
+  Distance:     <input type="text" name="distance"/>m<br/>
                         <input type="submit" name="form.distance_erg_added" value="Add"/><br/>
 </form>
 <br/>
@@ -52,8 +51,7 @@
 
 <h3>Add a set time for erg records</h3>
 <form action="${request.application_url}/admin/" method="post">
-  Increment length:     <input type="text" name="increment"/>min<br/>
-  Number of increments: <input type="text" name="multiple"/><br/>
+  Time:     <input type="text" name="time"/>min<br/>
                         <input type="submit" name="form.time_erg_added" value="Add"/><br/>
 </form>
 <br/>

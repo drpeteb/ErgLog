@@ -6,7 +6,7 @@
 <form action="${request.application_url}/home/" method="post">
   Fixed distance:
   <select name="distance_erg_type_id">
-    <option tal:repeat="erg_type_distance erg_type_distance_list" tal:content="python: '%sm in blocks of %sm' % (str(erg_type_distance.multiple*erg_type_distance.increment), str(erg_type_distance.increment))" tal:attributes="value erg_type_distance.id">Distance</option>
+    <option tal:repeat="erg_type_distance erg_type_distance_list" tal:content="python: '%sm' % (str(erg_type_distance.distance))" tal:attributes="value erg_type_distance.id">Distance</option>
   </select>
   <input type="submit" name="form.add_distance_erg_record" value="Add"/>
 </form>
@@ -14,7 +14,7 @@
 <form action="${request.application_url}/home/" method="post">
   Fixed time:
   <select name="time_erg_type_id">
-    <option tal:repeat="erg_type_time erg_type_time_list" tal:content="python: '%s min in blocks of %s min' % (str(erg_type_time.multiple*erg_type_time.increment), str(erg_type_time.increment))" tal:attributes="value erg_type_time.id">Time</option>
+    <option tal:repeat="erg_type_time erg_type_time_list" tal:content="python: '%s min' % (str(erg_type_time.time))" tal:attributes="value erg_type_time.id">Time</option>
   </select>
   <input type="submit" name="form.add_time_erg_record" value="Add"/>
 </form>
@@ -27,7 +27,7 @@
 <h3>View somebody's ergs</h3>
 <form action="${request.application_url}/home/" method="post">
 Who?   
-  <select name="rower_to_table">
+  <select name="rower_to_view">
     <option tal:repeat="rower rower_list" 
             tal:content="rower.name"
             tal:attributes="value rower.username">Rower Name</option>
