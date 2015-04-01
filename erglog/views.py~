@@ -30,8 +30,15 @@ from .erg_time_handling import *
 import datetime as dt
 import matplotlib.pyplot as plt
 import matplotlib.dates as mpl_dates
+from matplotlib.ticker import FuncFormatter
 import io
 #import xkcdify
+
+
+def time_labeller(time,ii):
+    (m,s,t) = explode_time(time)
+    return '{0}:{1:=02}'.format(m,s)
+
 
 ### LOGIN PAGE VIEW CALLBACKS ###
 @view_config(route_name='login', renderer='templates/generic_page.pt')
@@ -93,7 +100,7 @@ def home_page(request):
             erg_type_id = int(request.params['distance_erg_type_id'])
             erg_type = DBI.get_thing_by_id(ErgTypeDistance, erg_type_id)
             rower_to_view = request.params['rower_to_view']
-            return HTTPFound(location = request.route_url('view-distance-individual', erg_type_id=str(erg_type_id), username=username))
+            return HTTPFound(location = request.route_url('view-distance-individual', erg_type_id=str(erg_type_id), username=rower_to_view))
         except [KeyError,DBAPIError]:
             message = 'Ooh-er! Something\'s gone wrong. I don\'t recognise that type of erg.'
 
@@ -321,13 +328,37 @@ def view_distance_individual_page(request):
 
     # Get a list of ergs
     try:
-        erg_list = get_ergs_by_type_and_rower(ErgRecordDistance, erg_type_id, rower.id)
+        erg_list = DBI.get_ergs_by_type_and_rower(ErgRecordDistance, erg_type_id, rower.id)
     except DBAPIError:
         return HTTPNotFound('No such page')
 
-    # Create a table of all the ergs
+    # Sort ergs by date
+    erg_list.sort(key=lambda erg: erg.date)
+    
+    # Strip out dates and distances
+    dates = [ee.date for ee in erg_list]
+    times = [ee.time for ee in erg_list]
 
-    # Create a graph of all the ergs
+    # Create a plot
+    fig = plt.figure()
+    ax = fig.add_subplot(1,1,1)
+    ax.plot(dates, times, '-ok')
+    fig.autofmt_xdate()
+    ax.yaxis.set_major_formatter(FuncFormatter(time_labeller))
+    
+    # Output a string
+    fig_stream = io.StringIO()
+    fig.savefig(fig_stream, format='svg')
+    fig_stream.seek(0)
+    svg_data = ''.join(fig_stream.readlines())
+    start_point = svg_data.find('<svg')
+    svg_data = svg_data[start_point:]
+
+    # Create page
+    body = render('templates/graph.pt', dict(svg_data=svg_data), request)
+    message = 'Showing {}m ergs for {}'.format(erg_type.distance, rower)
+
+    return dict(message=message, body=body)
 
 
 
@@ -366,38 +397,4 @@ def view_distance_individual_page(request):
 #        entries.append(entry)
 #
 #    return {"entries":entries}
-
-
-#@view_config(route_name='graph', renderer='templates/graph.pt')
-#def erg_graph(request):
-#    # Make a list of ergs to display
-#    rower_id = int(request.matchdict['rower_id'])
-#    if rower_id == 0:
-#        erg_list = DBSession.query(ErgRecord).all()
-#    else:
-#        erg_list = DBSession.query(ErgRecord).filter_by(rower_id=rower_id).all()
-#    erg_list.sort(key=lambda erg: erg.date)
-#    
-#    # Strip out dates and distances
-#    dates = []
-#    distances = []
-#    for erg in erg_list:
-#        dates.append(erg.date)
-#        distances.append(erg.distance)
-#
-#    # Create a plot
-#    fig = plt.figure()
-#    ax = fig.add_subplot(111)
-#    ax.plot_date(dates, distances, '-')
-#    fig.autofmt_xdate()
-#    
-#    # Output a string
-#    virtual_file = StringIO.StringIO()
-#    fig.savefig(virtual_file, format='svg')
-#    virtual_file.seek(0)
-#    svg_data = virtual_file.buf
-#    start_point = svg_data.find('<svg')
-#    svg_data = svg_data[start_point:]
-#
-#    return {"svg_data":svg_data}
 

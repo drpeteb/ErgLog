@@ -26,9 +26,9 @@
     <div id="bottom">
       <div class="bottom">
 
-        <wrap tal:replace="svg_data">
+        <span tal:content="structure svg_data">
             SVG HERE
-        </wrap>
+        </span>
 
       </div>
     </div>

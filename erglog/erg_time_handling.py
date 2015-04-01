@@ -1,3 +1,5 @@
+import numpy as np
+
 class TimeError(Exception):
     pass
 
@@ -6,6 +8,13 @@ def input_time(min, sec, ten):
         raise TimeError
     time = 600*min + 10*sec + ten
     return time
+
+def explode_time(time):
+    min = int( (time-(time%600))/600 )
+    time = time%600
+    sec = int( (time-(time%10))/10 )
+    ten = int(time%10)
+    return (min,sec,ten)
 
 def output_time(time):
     min = int( (time-(time%600))/600 )
