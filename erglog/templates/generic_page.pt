@@ -49,7 +49,7 @@ $( ".datepicker" ).datepicker({ dateFormat: "yy-mm-dd" });
   </div>
   <div id="footer">
     <div class="footer"
-         >&copy; Copyright 2013, P. Bunch.</div>
+         >&copy; Copyright 2015, P. Bunch.</div>
   </div>
 </body>
 </html>

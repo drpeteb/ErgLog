@@ -18,7 +18,7 @@
   <script src="${request.static_url('erglog:static/jquery-ui.js')}"></script>
   <script type="text/javascript">
 $(function() {
-$( "#datepicker" ).datepicker({ dateFormat: "yy-mm-dd" });
+$( ".datepicker" ).datepicker({ dateFormat: "yy-mm-dd" });
 });
   </script>
 

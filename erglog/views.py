@@ -114,6 +114,16 @@ def home_page(request):
         except [KeyError,DBAPIError]:
             message = 'Ooh-er! Something\'s gone wrong. I don\'t recognise that type of erg.'
 
+    elif 'form.view_group_distance_ergs' in request.params:
+        # View distance erg records for a many rowers
+        try:
+            erg_type_id = int(request.params['distance_erg_type_id'])
+            erg_type = DBI.get_thing_by_id(ErgTypeDistance, erg_type_id)
+            return HTTPFound(location = request.route_url('view-distance-group', erg_type_id=str(erg_type_id)))
+        except [KeyError,DBAPIError]:
+            message = 'Ooh-er! Something\'s gone wrong. I don\'t recognise that type of erg.'
+
+
     else:
         # Otherwise return default
         message='Welcome to ErgLog, %s. Enjoy your stay.' % rower.name
@@ -476,6 +486,88 @@ def view_time_individual_page(request):
 
     return dict(message=message, body=body)
 
+######################
+### VIEW-DISTANCE-GROUP PAGE VIEW CALLBACKS ###
+@view_config(route_name='view-distance-group', renderer='templates/generic_page.pt', permission='standard')
+def view_distance_group_page(request):
+
+    # Ensure that the erg type specified by the path actually exists
+    try:
+        erg_type_id = int(request.matchdict['erg_type_id'])
+        erg_type = DBI.get_thing_by_id(ErgTypeDistance, erg_type_id)
+    except [ValueError,DBAPIError]:
+        return HTTPNotFound('No such page')
+    
+    # Get a list of all rowers
+    try:
+        all_rower_list = DBI.list_all(Rower)
+    except DBAPIError:
+        return HTTPNotFound('No such page')
+
+    # Get a list of rowers to plot
+    if 'form.submit_rower_list' in request.params:
+        rower_ids = request.params.getall('rowers_to_plot')
+        print(rower_ids)
+        try:
+            rower_list = [DBI.get_thing_by_id(Rower, int(idstr)) for idstr in rower_ids]
+        except DBAPIError:
+            return HTTPNotFound('No such page')
+    else:
+        rower_list = all_rower_list
+        
+    
+    # Get a list of ergs for each rower
+    try:
+        rower_erg_list = []
+        for rower in rower_list:
+            rower_erg_list.append( DBI.get_ergs_by_type_and_rower(ErgRecordDistance, erg_type_id, rower.id) )
+    except DBAPIError:
+        return HTTPNotFound('No such page')
+
+    # Sort ergs by date
+    for el in rower_erg_list:
+        el.sort(key=lambda erg: erg.date)
+    
+    # Make a list of colours
+    colours = plt.get_cmap('jet')(np.linspace(0, 1.0, len(rower_list)))
+    print(colours)
+    
+    # Create a plot
+    fig = plt.figure(figsize=(10,8))
+    ax = fig.add_axes([0.1,0.15,0.6,0.8])
+
+    # Draw all the ergs
+    for rr in range(len(rower_list)):
+        rower = rower_list[rr]
+        el = rower_erg_list[rr]
+        ax.plot([ee.date for ee in el], [ee.time for ee in el], '-o', color=colours[rr], label=rower.name)
+
+    # Format
+    #box = ax.get_position()
+    #ax.set_position([box.x0, box.y0, 0.5*box.width, box.height])
+    ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+    fig.autofmt_xdate()
+    ax.yaxis.set_major_formatter(FuncFormatter(time_labeller))
+    
+    # Output a string
+    fig_stream = io.StringIO()
+    fig.savefig(fig_stream, format='svg')
+    fig_stream.seek(0)
+    svg_data = ''.join(fig_stream.readlines())
+    start_point = svg_data.find('<svg')
+    svg_data = svg_data[start_point:]
+    
+    # Get page url
+    view_group_url = request.route_url('view-distance-group', erg_type_id=erg_type_id)
+    
+    # Create page
+    temp_dict = dict(svg_data=svg_data,
+                     view_group_url=view_group_url,
+                     rower_list=all_rower_list)
+    body = render('templates/multi-graph.pt', temp_dict, request)
+    message = 'Showing {}m ergs'.format(erg_type.distance)
+
+    return dict(message=message, body=body)
 
 
 

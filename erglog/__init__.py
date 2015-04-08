@@ -38,8 +38,8 @@ def main(global_config, **settings):
     config.add_route('view-distance-individual', '/view-distance/{erg_type_id}/{username}/')
     config.add_route('add-time-erg', '/add-time-erg/{erg_type_id}/{username}/')
     config.add_route('view-time-individual', '/view-time/{erg_type_id}/{username}/')
-    #config.add_route('view-distance-all', '/view-distance/{multiple}of{increment}/')
-    #config.add_route('view-time-all', '/view-time/{multiple}of{increment}/')
+    config.add_route('view-distance-group', '/view-distance-group/{erg_type_id}/')
+    config.add_route('view-time-group', '/view-time-group/{erg_type_id}/')
     ##############
     config.scan()
     

@@ -1,0 +1,28 @@
+<p>
+<a href="${request.application_url}/home/">Home again</a><br/>
+</p>
+<br/>
+<hr/>
+
+<div>
+<span tal:content="structure svg_data">
+    SVG HERE
+</span>
+<br/>
+<div>
+
+<div>
+<hr/>
+<h3>Select rowers to plot</h3>
+<form action="${view_group_url}" method="post">
+<input type="submit" name="form.submit_rower_list" value="Plot"/> <br/>
+<span tal:repeat="rower rower_list">
+<input type="checkbox"
+       name="rowers_to_plot"
+       tal:attributes="value rower.id"
+       tal:content="rower.name"> <br/>
+</span>
+<br/>
+</form>
+<br/>
+</div>
