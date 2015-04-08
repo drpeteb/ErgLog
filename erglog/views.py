@@ -110,7 +110,7 @@ def home_page(request):
             erg_type_id = int(request.params['time_erg_type_id'])
             erg_type = DBI.get_thing_by_id(ErgTypeTime, erg_type_id)
             rower_to_view = request.params['rower_to_view']
-            return HTTPFound(location = request.route_url('view-time-individual', erg_type_id=str(erg_type_id), username=username))
+            return HTTPFound(location = request.route_url('view-time-individual', erg_type_id=str(erg_type_id), username=rower_to_view))
         except [KeyError,DBAPIError]:
             message = 'Ooh-er! Something\'s gone wrong. I don\'t recognise that type of erg.'
 
@@ -288,22 +288,84 @@ def add_distance_erg_page(request):
 
     add_distance_url = request.route_url('add-distance-erg', erg_type_id=erg_type_id, username=username)
 
-    #min_name_list = ['min_block_%u'%(bb+1) for bb in range(erg_type.multiple)]
-    #sec_name_list = ['sec_block_%u'%(bb+1) for bb in range(erg_type.multiple)]
-    #ten_name_list = ['ten_block_%u'%(bb+1) for bb in range(erg_type.multiple)]
-
     temp_dict = dict(username=username,
                      name=rower.name,
                      distance=erg_type.distance,
                      add_distance_url=add_distance_url
                      )
-                     #min_name_list=min_name_list,
-                     #sec_name_list=sec_name_list,
-                     #ten_name_list=ten_name_list,
-                     #)
     body = render('templates/add_distance_erg.pt', temp_dict, request)
     return dict(message=message, body=body)
 
+
+
+### ADD-TIME-ERG PAGE VIEW CALLBACKS ###
+@view_config(route_name='add-time-erg', renderer='templates/generic_page.pt', permission='standard')
+def add_time_erg_page(request):
+
+    # Get the details of the person ENTERING the erg (not necessarily the subject)
+    username = authenticated_userid(request)    
+
+    # Ensure that the erg type specified by the path actually exists
+    try:
+        erg_type_id = int(request.matchdict['erg_type_id'])
+        erg_type = DBI.get_thing_by_id(ErgTypeTime, erg_type_id)
+    except [ValueError,DBAPIError]:
+        return HTTPNotFound('No such page')
+
+    # Ensure the subject exists
+    try:
+        subject = request.matchdict['username']
+        rower = DBI.get_rower_by_username(subject)
+    except DBAPIError:
+        return HTTPNotFound('No such page')
+
+    # Check that the subject and username are the same or the username has admin rights
+    ### ADD THIS CHECK ###
+
+    if 'form.distance_erg_record_added' in request.params:
+        # Parse the new erg record
+        still_good = True
+
+        # Get the date
+        try:
+            date = dt.datetime.strptime(request.params['time_erg_date'], '%Y-%m-%d')
+        except ValueError:
+            message = 'I don\'t recognise that date.'
+            still_good = False
+
+        try:
+            distance = int(request.params['distance'])
+        except ValueError:
+            message = 'Please use numbers to record your distance.'
+            distance = 0
+            still_good = False
+
+        if distance < 0:
+            message = 'You rowed backwards...!? Try again.'
+            still_good = False
+
+        # Make a new record object and put it in the database
+        if still_good:
+            erg_record = ErgRecordTime(rower.id, date, distance, erg_type_id)
+            try:
+                DBI.add_to_db(erg_record)
+                message='Added new time erg: {0} rowed {1}m in {2} on {3!s}. Thankyou.'.format(rower.name, distance, erg_type.time, date.date())
+            except DBAPIError:
+                message='Failed to add new erg. You\'ve probably already recorded one for that date. Sorry.'
+
+    else:
+        # Otherwise return default
+        message='Go on then. How did it go?'
+
+    add_time_url = request.route_url('add-time-erg', erg_type_id=erg_type_id, username=username)
+
+    temp_dict = dict(username=username,
+                     name=rower.name,
+                     time=erg_type.time,
+                     add_time_url=add_time_url
+                     )
+    body = render('templates/add_time_erg.pt', temp_dict, request)
+    return dict(message=message, body=body)
 
 
 
@@ -362,6 +424,57 @@ def view_distance_individual_page(request):
 
 
 
+### VIEW-TIME-INDIVIDUAL PAGE VIEW CALLBACKS ###
+@view_config(route_name='view-time-individual', renderer='templates/generic_page.pt', permission='standard')
+def view_time_individual_page(request):
+
+    # Ensure that the erg type specified by the path actually exists
+    try:
+        erg_type_id = int(request.matchdict['erg_type_id'])
+        erg_type = DBI.get_thing_by_id(ErgTypeTime, erg_type_id)
+    except [ValueError,DBAPIError]:
+        return HTTPNotFound('No such page')
+
+    # Ensure the subject exists
+    try:
+        subject = request.matchdict['username']
+        rower = DBI.get_rower_by_username(subject)
+    except DBAPIError:
+        return HTTPNotFound('No such page')
+
+    # Get a list of ergs
+    try:
+        erg_list = DBI.get_ergs_by_type_and_rower(ErgRecordTime, erg_type_id, rower.id)
+    except DBAPIError:
+        return HTTPNotFound('No such page')
+
+    # Sort ergs by date
+    erg_list.sort(key=lambda erg: erg.date)
+    
+    # Strip out dates and distances
+    dates     = [ee.date     for ee in erg_list]
+    distances = [ee.distance for ee in erg_list]
+
+    # Create a plot
+    fig = plt.figure()
+    ax = fig.add_subplot(1,1,1)
+    ax.plot(dates, distances, '-ok')
+    ax.set_ylabel('m')
+    fig.autofmt_xdate()
+    
+    # Output a string
+    fig_stream = io.StringIO()
+    fig.savefig(fig_stream, format='svg')
+    fig_stream.seek(0)
+    svg_data = ''.join(fig_stream.readlines())
+    start_point = svg_data.find('<svg')
+    svg_data = svg_data[start_point:]
+
+    # Create page
+    body = render('templates/graph.pt', dict(svg_data=svg_data), request)
+    message = 'Showing {} min ergs for {}'.format(erg_type.time, rower.name)
+
+    return dict(message=message, body=body)
 
 
 

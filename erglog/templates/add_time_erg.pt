@@ -1,0 +1,15 @@
+<h3>Enter erg details for</h3>
+<h3 tal:content="python:'%s: %u min erg'%(name,time)">erg type</h3>
+<hr/>
+<form action="${add_time_url}" method="post">
+Date (YYYY-MM-DD): <input type="text" name="time_erg_date" class="datepicker"  autocomplete="off"/><br/>
+Distance (m):
+<input type="text" name="distance" style="width: 5em;" maxlength="5"/>
+<br/>
+<input type="submit" name="form.distance_erg_record_added" value="Add"/>
+</form>
+
+<hr/>
+<p>
+<a href="${request.application_url}/home/">All done</a><br/>
+</p>
