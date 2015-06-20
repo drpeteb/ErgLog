@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# Deploy action hook.
+
+# Initialise database
+if [ -z "$OPENSHIFT_REPO_DIR" ]; then
+	echo "OPENSHIFT_REPO_DIR environment variable is not defined" >&2
+else
+	echo "Initialising database."
+	pushd "$OPENSHIFT_REPO_DIR"
+	initialize_ErgLog_db production.ini
+	popd
+fi

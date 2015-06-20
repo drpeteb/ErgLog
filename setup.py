@@ -3,22 +3,27 @@ import os
 from setuptools import setup, find_packages
 
 here = os.path.abspath(os.path.dirname(__file__))
-README = open(os.path.join(here, 'README.txt')).read()
-CHANGES = open(os.path.join(here, 'CHANGES.txt')).read()
+with open(os.path.join(here, 'README.txt')) as f:
+    README = f.read()
+with open(os.path.join(here, 'CHANGES.txt')) as f:
+    CHANGES = f.read()
 
 requires = [
     'pyramid',
+    'pyramid_chameleon',
+    'pyramid_debugtoolbar',
+    'waitress',
     'SQLAlchemy',
     'transaction',
     'pyramid_tm',
-    'pyramid_debugtoolbar',
     'zope.sqlalchemy',
-    'waitress',
+    'matplotlib'
     ]
 
+
 setup(name='ErgLog',
-      version='0.0',
-      description='ErgLog',
+      version='0.1',
+      description='Ergometer Score Logger',
       long_description=README + '\n\n' + CHANGES,
       classifiers=[
         "Programming Language :: Python",
@@ -26,15 +31,14 @@ setup(name='ErgLog',
         "Topic :: Internet :: WWW/HTTP",
         "Topic :: Internet :: WWW/HTTP :: WSGI :: Application",
         ],
-      author='',
+      author='Pete Bunch',
       author_email='',
-      url='',
-      keywords='web wsgi bfg pylons pyramid',
       packages=find_packages(),
       include_package_data=True,
       zip_safe=False,
-      test_suite='erglog',
       install_requires=requires,
+      tests_require=requires,
+      test_suite="erglog",
       entry_points="""\
       [paste.app_factory]
       main = erglog:main
@@ -42,3 +46,4 @@ setup(name='ErgLog',
       initialize_ErgLog_db = erglog.scripts.initializedb:main
       """,
       )
+
