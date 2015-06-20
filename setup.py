@@ -46,4 +46,3 @@ setup(name='ErgLog',
       initialize_ErgLog_db = erglog.scripts.initializedb:main
       """,
       )
-
